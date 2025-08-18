@@ -1,0 +1,27 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: check-json
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        exclude: __snapshot__/.+ambr$
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        args: [--skip-string-normalization]
+  - repo: local
+    hooks:
+      - id: pytest
+        name: Check pytest unit tests phases
+        entry: pytest --cov
+        pass_filenames: false
+        language: system
+        types: [python]
+      - id: cfn-lint_iac-demo
+        name: Check synthesized IaC Demo template with cfn-lint
+        entry: cdk synth org-iac-demo > template.yml && cfn-lint template.yml && del template.yml
+        pass_filenames: false
+        language: system

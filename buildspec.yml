@@ -1,0 +1,33 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+      nodejs: 20
+    commands:
+      - pip install -Ur requirements.txt
+      - npm install -g aws-cdk@2.1013.0
+  pre_build:
+    commands:
+      - mkdir -p reports
+      - black . --exclude '.venv' --check --skip-string-normalization
+      - pytest --cov --junitxml=reports/pytest.xml --cov-report xml:reports/coverage.xml
+  build:
+    commands:
+      - cdk synth iac-demo > $CODEBUILD_SRC_DIR/template.yml
+      - cfn-lint $CODEBUILD_SRC_DIR/template.yml -f junit > reports/cfn-lint_iac-demo.xml
+artifacts:
+  files:
+    - "**/*"
+reports:
+  Tests:
+    base-directory: ./reports
+    file-format: JUNITXML
+    files:
+      - pytest.xml
+      - cfn-lint_iac-demo.xml
+  Coverage:
+    base-directory: ./reports
+    file-format: COBERTURAXML
+    files:
+      - coverage.xml
