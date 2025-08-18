@@ -3,13 +3,9 @@ import aws_cdk.assertions as assertions
 
 from iac_demo.iac_demo_stack import IacDemoStack
 
-# example tests. To run these tests, uncomment this file along with the example
-# resource in iac_demo/iac_demo_stack.py
-def test_sqs_queue_created():
-    app = core.App()
-    stack = IacDemoStack(app, "iac-demo")
-    template = assertions.Template.from_stack(stack)
 
-#     template.has_resource_properties("AWS::SQS::Queue", {
-#         "VisibilityTimeout": 300
-#     })
+def test_snapshot(snapshot):
+    app = core.App()
+    stack = IacDemoStack(app, "org-iac-demo")
+    template = assertions.Template.from_stack(stack)
+    assert template.to_json() == snapshot
