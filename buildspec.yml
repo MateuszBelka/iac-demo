@@ -15,7 +15,7 @@ phases:
   build:
     commands:
       - cdk synth iac-demo > $CODEBUILD_SRC_DIR/template_iac-demo.yml
-      - cfn-lint $CODEBUILD_SRC_DIR/template_iac-demo.yml -f junit > reports/cfn-lint_iac-demo.xml
+      - cfn-lint $CODEBUILD_SRC_DIR/template_iac-demo.yml -i W3005 -f junit > reports/cfn-lint_iac-demo.xml
 
       - cdk synth iac-demo-pipeline > $CODEBUILD_SRC_DIR/template_iac-demo-pipeline.yml
       - cfn-lint $CODEBUILD_SRC_DIR/template_iac-demo-pipeline.yml -i W3005 -f junit > reports/cfn-lint_iac-demo-pipeline.xml
