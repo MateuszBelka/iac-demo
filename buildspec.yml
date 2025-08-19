@@ -14,8 +14,11 @@ phases:
       - pytest --cov --junitxml=reports/pytest.xml --cov-report xml:reports/coverage.xml
   build:
     commands:
-      - cdk synth iac-demo > $CODEBUILD_SRC_DIR/template.yml
-      - cfn-lint $CODEBUILD_SRC_DIR/template.yml -f junit > reports/cfn-lint_iac-demo.xml
+      - cdk synth iac-demo > $CODEBUILD_SRC_DIR/template_iac-demo.yml
+      - cfn-lint $CODEBUILD_SRC_DIR/template_iac-demo.yml -f junit > reports/cfn-lint_iac-demo.xml
+
+      - cdk synth iac-demo-pipeline > $CODEBUILD_SRC_DIR/template_iac-demo-pipeline.yml
+      - cfn-lint $CODEBUILD_SRC_DIR/template_iac-demo-pipeline.yml -f junit > reports/cfn-lint_iac-demo-pipeline.xml
 artifacts:
   files:
     - "**/*"
@@ -26,6 +29,7 @@ reports:
     files:
       - pytest.xml
       - cfn-lint_iac-demo.xml
+      - cfn-lint_iac-demo-pipeline.xml
   Coverage:
     base-directory: ./reports
     file-format: COBERTURAXML
