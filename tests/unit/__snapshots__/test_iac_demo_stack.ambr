@@ -2,10 +2,267 @@
 # name: test_snapshot
   dict({
     'Parameters': dict({
+      'AutoScalingGroupEBSKeyParameterParameter7DE50D33': dict({
+        'Default': '/org_name/ebs/encryption-key-arn',
+        'Type': 'AWS::SSM::Parameter::Value<String>',
+      }),
       'BootstrapVersion': dict({
         'Default': '/cdk-bootstrap/hnb659fds/version',
         'Description': 'Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]',
         'Type': 'AWS::SSM::Parameter::Value<String>',
+      }),
+      'SsmParameterValueorgnamehardenendamiidC96584B6F00A464EAD1953AFF4B05118Parameter': dict({
+        'Default': '/org_name/hardenend-ami-id',
+        'Type': 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>',
+      }),
+    }),
+    'Resources': dict({
+      'AutoScalingGroup34A4A1D7': dict({
+        'Properties': dict({
+          'AutoScalingGroupName': 'iac-demo-asg',
+          'DesiredCapacity': '1',
+          'LaunchTemplate': dict({
+            'LaunchTemplateId': dict({
+              'Ref': 'AutoScalingGroupLaunchTemplateCE2B3AFE',
+            }),
+            'Version': dict({
+              'Fn::GetAtt': list([
+                'AutoScalingGroupLaunchTemplateCE2B3AFE',
+                'LatestVersionNumber',
+              ]),
+            }),
+          }),
+          'MaxSize': '1',
+          'MinSize': '1',
+        }),
+        'Type': 'AWS::AutoScaling::AutoScalingGroup',
+      }),
+      'AutoScalingGroupLaunchTemplateCE2B3AFE': dict({
+        'Properties': dict({
+          'LaunchTemplateData': dict({
+            'BlockDeviceMappings': list([
+              dict({
+                'DeviceName': '/dev/sda1',
+                'Ebs': dict({
+                  'DeleteOnTermination': True,
+                  'Encrypted': True,
+                  'KmsKeyId': dict({
+                    'Ref': 'AutoScalingGroupEBSKeyParameterParameter7DE50D33',
+                  }),
+                  'VolumeSize': 15,
+                }),
+              }),
+            ]),
+            'IamInstanceProfile': dict({
+              'Arn': dict({
+                'Fn::GetAtt': list([
+                  'AutoScalingGroupLaunchTemplateProfileEFF79CA0',
+                  'Arn',
+                ]),
+              }),
+            }),
+            'ImageId': dict({
+              'Ref': 'SsmParameterValueorgnamehardenendamiidC96584B6F00A464EAD1953AFF4B05118Parameter',
+            }),
+            'InstanceType': 't3a.medium',
+            'TagSpecifications': list([
+              dict({
+                'ResourceType': 'instance',
+                'Tags': list([
+                  dict({
+                    'Key': 'Name',
+                    'Value': 'org-iac-demo/AutoScalingGroup/LaunchTemplate',
+                  }),
+                ]),
+              }),
+              dict({
+                'ResourceType': 'volume',
+                'Tags': list([
+                  dict({
+                    'Key': 'Name',
+                    'Value': 'org-iac-demo/AutoScalingGroup/LaunchTemplate',
+                  }),
+                ]),
+              }),
+            ]),
+          }),
+          'LaunchTemplateName': 'iac-demo-asg-launch-template',
+          'TagSpecifications': list([
+            dict({
+              'ResourceType': 'launch-template',
+              'Tags': list([
+                dict({
+                  'Key': 'Name',
+                  'Value': 'org-iac-demo/AutoScalingGroup/LaunchTemplate',
+                }),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::EC2::LaunchTemplate',
+      }),
+      'AutoScalingGroupLaunchTemplateProfileEFF79CA0': dict({
+        'Properties': dict({
+          'Roles': list([
+            'iac-demo-ec2-role',
+          ]),
+        }),
+        'Type': 'AWS::IAM::InstanceProfile',
+      }),
+      'NoPublicIPConfigRuleDirectLambdaRemediationConfigB0E99669': dict({
+        'DependsOn': list([
+          'NoPublicIPConfigRuleEC2NoPublicIPRule48BFD134',
+          'NoPublicIPConfigRulePublicIPRemediationFunction117E9277',
+        ]),
+        'Properties': dict({
+          'Automatic': True,
+          'ConfigRuleName': dict({
+            'Ref': 'NoPublicIPConfigRuleEC2NoPublicIPRule48BFD134',
+          }),
+          'MaximumAutomaticAttempts': 2,
+          'Parameters': dict({
+            'AutomationAssumeRole': dict({
+              'StaticValue': dict({
+                'Fn::Join': list([
+                  '',
+                  list([
+                    'arn:',
+                    dict({
+                      'Ref': 'AWS::Partition',
+                    }),
+                    ':iam::',
+                    dict({
+                      'Ref': 'AWS::AccountId',
+                    }),
+                    ':role/iac-demo-nopublicip-remediation-ssm-role',
+                  ]),
+                ]),
+              }),
+            }),
+            'ResourceId': dict({
+              'ResourceValue': dict({
+                'Value': 'RESOURCE_ID',
+              }),
+            }),
+          }),
+          'TargetId': 'demo-iac-no-public-ip-remediation-document',
+          'TargetType': 'SSM_DOCUMENT',
+          'TargetVersion': '1',
+        }),
+        'Type': 'AWS::Config::RemediationConfiguration',
+      }),
+      'NoPublicIPConfigRuleEC2NoPublicIPRule48BFD134': dict({
+        'Properties': dict({
+          'ConfigRuleName': 'ec2-instance-no-public-ip',
+          'Description': 'Checks whether Amazon EC2 instances have a public IP association',
+          'Source': dict({
+            'Owner': 'AWS',
+            'SourceIdentifier': 'EC2_INSTANCE_NO_PUBLIC_IP',
+          }),
+        }),
+        'Type': 'AWS::Config::ConfigRule',
+      }),
+      'NoPublicIPConfigRuleNoPublicIPRemediationDocument28DCFD10': dict({
+        'Properties': dict({
+          'Content': dict({
+            'assumeRole': '{{AutomationAssumeRole}}',
+            'description': 'Invoke lambda function for remediating public ip',
+            'mainSteps': list([
+              dict({
+                'action': 'aws:invokeLambdaFunction',
+                'inputs': dict({
+                  'FunctionName': dict({
+                    'Fn::GetAtt': list([
+                      'NoPublicIPConfigRulePublicIPRemediationFunction117E9277',
+                      'Arn',
+                    ]),
+                  }),
+                  'Payload': '{"ResourceId": "{{ResourceId}}"}',
+                }),
+                'isEnd': True,
+                'maxAttempts': '1',
+                'name': 'invokeLambdaFunction',
+                'onFailure': 'Abort',
+                'timeoutSeconds': '120',
+              }),
+            ]),
+            'parameters': dict({
+              'AutomationAssumeRole': dict({
+                'default': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:',
+                      dict({
+                        'Ref': 'AWS::Partition',
+                      }),
+                      ':iam::',
+                      dict({
+                        'Ref': 'AWS::AccountId',
+                      }),
+                      ':role/iac-demo-nopublicip-remediation-ssm-role',
+                    ]),
+                  ]),
+                }),
+                'description': 'Role that allows ssm automation to trigger remediation lambda',
+                'type': 'String',
+              }),
+              'ResourceId': dict({
+                'description': 'The ID of the non-compliant resource',
+                'type': 'String',
+              }),
+            }),
+            'schemaVersion': '0.3',
+          }),
+          'DocumentType': 'Automation',
+          'Name': 'demo-iac-no-public-ip-remediation-document',
+          'VersionName': '1',
+        }),
+        'Type': 'AWS::SSM::Document',
+      }),
+      'NoPublicIPConfigRulePublicIPRemediationFunction117E9277': dict({
+        'Properties': dict({
+          'Code': dict({
+            'S3Bucket': dict({
+              'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
+            }),
+            'S3Key': 'c23d9e25f372244944872c45825d2c17aa89818124780c6bc15b238fd5e4f233.zip',
+          }),
+          'Handler': 'service.index.lambda_handler',
+          'LoggingConfig': dict({
+            'LogGroup': dict({
+              'Ref': 'NoPublicIPConfigRulePublicIPRemediationLogGroup51B6B7CD',
+            }),
+          }),
+          'Role': dict({
+            'Fn::Join': list([
+              '',
+              list([
+                'arn:',
+                dict({
+                  'Ref': 'AWS::Partition',
+                }),
+                ':iam::',
+                dict({
+                  'Ref': 'AWS::AccountId',
+                }),
+                ':role/iac-demo-nopublicip-remediation-lambda-role',
+              ]),
+            ]),
+          }),
+          'Runtime': 'python3.11',
+          'Timeout': 60,
+        }),
+        'Type': 'AWS::Lambda::Function',
+      }),
+      'NoPublicIPConfigRulePublicIPRemediationLogGroup51B6B7CD': dict({
+        'DeletionPolicy': 'Delete',
+        'Properties': dict({
+          'LogGroupName': '/aws/lambda/public-ip-remediation',
+          'RetentionInDays': 7,
+        }),
+        'Type': 'AWS::Logs::LogGroup',
+        'UpdateReplacePolicy': 'Delete',
       }),
     }),
     'Rules': dict({
