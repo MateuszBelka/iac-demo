@@ -41,6 +41,9 @@ At this point you can now synthesize the CloudFormation template for this code.
 
 ```
 $ cdk synth
+$ pre-commit run --all-files
+$ pytest --cov
+$ pytest --snapshot-update
 ```
 
 To add additional dependencies, for example other CDK libraries, just add

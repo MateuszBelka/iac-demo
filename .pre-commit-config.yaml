@@ -25,3 +25,8 @@ repos:
         entry: cdk synth org-iac-demo > template.yml && cfn-lint template.yml && del template.yml
         pass_filenames: false
         language: system
+      - id: cfn-lint_iac-demo-pipeline
+        name: Check synthesized IaC Demo Pipeline template with cfn-lint
+        entry: cdk synth org-iac-demo-pipeline > template.yml && cfn-lint template.yml && del template.yml
+        pass_filenames: false
+        language: system
