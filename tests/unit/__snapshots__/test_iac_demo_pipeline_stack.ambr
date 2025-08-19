@@ -8,6 +8,1182 @@
         'Type': 'AWS::SSM::Parameter::Value<String>',
       }),
     }),
+    'Resources': dict({
+      'CICDBuildProject49C5338E': dict({
+        'Properties': dict({
+          'Artifacts': dict({
+            'Type': 'CODEPIPELINE',
+          }),
+          'Cache': dict({
+            'Type': 'NO_CACHE',
+          }),
+          'EncryptionKey': dict({
+            'Fn::GetAtt': list([
+              'CICDPipelineArtifactsBucketEncryptionKeyA192D562',
+              'Arn',
+            ]),
+          }),
+          'Environment': dict({
+            'ComputeType': 'BUILD_GENERAL1_SMALL',
+            'Image': 'aws/codebuild/standard:7.0',
+            'ImagePullCredentialsType': 'CODEBUILD',
+            'PrivilegedMode': False,
+            'Type': 'LINUX_CONTAINER',
+          }),
+          'Name': 'iac-demo-build-project',
+          'ServiceRole': dict({
+            'Fn::GetAtt': list([
+              'CICDBuildProjectRoleC4801EDA',
+              'Arn',
+            ]),
+          }),
+          'Source': dict({
+            'Type': 'CODEPIPELINE',
+          }),
+        }),
+        'Type': 'AWS::CodeBuild::Project',
+      }),
+      'CICDBuildProjectRoleC4801EDA': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'codebuild.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'CICDBuildProjectRoleDefaultPolicyF95ECEFB': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': list([
+                  'logs:CreateLogGroup',
+                  'logs:CreateLogStream',
+                  'logs:PutLogEvents',
+                ]),
+                'Effect': 'Allow',
+                'Resource': list([
+                  dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        'arn:',
+                        dict({
+                          'Ref': 'AWS::Partition',
+                        }),
+                        ':logs:',
+                        dict({
+                          'Ref': 'AWS::Region',
+                        }),
+                        ':',
+                        dict({
+                          'Ref': 'AWS::AccountId',
+                        }),
+                        ':log-group:/aws/codebuild/',
+                        dict({
+                          'Ref': 'CICDBuildProject49C5338E',
+                        }),
+                      ]),
+                    ]),
+                  }),
+                  dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        'arn:',
+                        dict({
+                          'Ref': 'AWS::Partition',
+                        }),
+                        ':logs:',
+                        dict({
+                          'Ref': 'AWS::Region',
+                        }),
+                        ':',
+                        dict({
+                          'Ref': 'AWS::AccountId',
+                        }),
+                        ':log-group:/aws/codebuild/',
+                        dict({
+                          'Ref': 'CICDBuildProject49C5338E',
+                        }),
+                        ':*',
+                      ]),
+                    ]),
+                  }),
+                ]),
+              }),
+              dict({
+                'Action': list([
+                  'codebuild:CreateReportGroup',
+                  'codebuild:CreateReport',
+                  'codebuild:UpdateReport',
+                  'codebuild:BatchPutTestCases',
+                  'codebuild:BatchPutCodeCoverages',
+                ]),
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:',
+                      dict({
+                        'Ref': 'AWS::Partition',
+                      }),
+                      ':codebuild:',
+                      dict({
+                        'Ref': 'AWS::Region',
+                      }),
+                      ':',
+                      dict({
+                        'Ref': 'AWS::AccountId',
+                      }),
+                      ':report-group/',
+                      dict({
+                        'Ref': 'CICDBuildProject49C5338E',
+                      }),
+                      '-*',
+                    ]),
+                  ]),
+                }),
+              }),
+              dict({
+                'Action': list([
+                  's3:GetObject*',
+                  's3:GetBucket*',
+                  's3:List*',
+                  's3:DeleteObject*',
+                  's3:PutObject',
+                  's3:PutObjectLegalHold',
+                  's3:PutObjectRetention',
+                  's3:PutObjectTagging',
+                  's3:PutObjectVersionTagging',
+                  's3:Abort*',
+                ]),
+                'Effect': 'Allow',
+                'Resource': list([
+                  dict({
+                    'Fn::GetAtt': list([
+                      'CICDPipelineArtifactsBucketF0034562',
+                      'Arn',
+                    ]),
+                  }),
+                  dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        dict({
+                          'Fn::GetAtt': list([
+                            'CICDPipelineArtifactsBucketF0034562',
+                            'Arn',
+                          ]),
+                        }),
+                        '/*',
+                      ]),
+                    ]),
+                  }),
+                ]),
+              }),
+              dict({
+                'Action': list([
+                  'kms:Decrypt',
+                  'kms:DescribeKey',
+                  'kms:Encrypt',
+                  'kms:ReEncrypt*',
+                  'kms:GenerateDataKey*',
+                ]),
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::GetAtt': list([
+                    'CICDPipelineArtifactsBucketEncryptionKeyA192D562',
+                    'Arn',
+                  ]),
+                }),
+              }),
+              dict({
+                'Action': list([
+                  'kms:Decrypt',
+                  'kms:Encrypt',
+                  'kms:ReEncrypt*',
+                  'kms:GenerateDataKey*',
+                ]),
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::GetAtt': list([
+                    'CICDPipelineArtifactsBucketEncryptionKeyA192D562',
+                    'Arn',
+                  ]),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'CICDBuildProjectRoleDefaultPolicyF95ECEFB',
+          'Roles': list([
+            dict({
+              'Ref': 'CICDBuildProjectRoleC4801EDA',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'CICDDeploymentRolePolicy1EE76370': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'iam:PassRole',
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::GetAtt': list([
+                    'CICDPipelineDeployiasdemocreateRoleF1E4CF5F',
+                    'Arn',
+                  ]),
+                }),
+              }),
+              dict({
+                'Action': list([
+                  's3:GetObject*',
+                  's3:GetBucket*',
+                  's3:List*',
+                ]),
+                'Effect': 'Allow',
+                'Resource': list([
+                  dict({
+                    'Fn::GetAtt': list([
+                      'CICDPipelineArtifactsBucketF0034562',
+                      'Arn',
+                    ]),
+                  }),
+                  dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        dict({
+                          'Fn::GetAtt': list([
+                            'CICDPipelineArtifactsBucketF0034562',
+                            'Arn',
+                          ]),
+                        }),
+                        '/*',
+                      ]),
+                    ]),
+                  }),
+                ]),
+              }),
+              dict({
+                'Action': list([
+                  'kms:Decrypt',
+                  'kms:DescribeKey',
+                ]),
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::GetAtt': list([
+                    'CICDPipelineArtifactsBucketEncryptionKeyA192D562',
+                    'Arn',
+                  ]),
+                }),
+              }),
+              dict({
+                'Action': list([
+                  'cloudformation:CreateChangeSet',
+                  'cloudformation:DeleteChangeSet',
+                  'cloudformation:DescribeChangeSet',
+                  'cloudformation:DescribeStacks',
+                ]),
+                'Condition': dict({
+                  'StringEqualsIfExists': dict({
+                    'cloudformation:ChangeSetName': 'iac-demo',
+                  }),
+                }),
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:',
+                      dict({
+                        'Ref': 'AWS::Partition',
+                      }),
+                      ':cloudformation:',
+                      dict({
+                        'Ref': 'AWS::Region',
+                      }),
+                      ':',
+                      dict({
+                        'Ref': 'AWS::AccountId',
+                      }),
+                      ':stack/iac-demo/*',
+                    ]),
+                  ]),
+                }),
+              }),
+              dict({
+                'Action': list([
+                  'cloudformation:DescribeChangeSet',
+                  'cloudformation:DescribeStackEvents',
+                  'cloudformation:DescribeStacks',
+                  'cloudformation:ExecuteChangeSet',
+                ]),
+                'Condition': dict({
+                  'StringEqualsIfExists': dict({
+                    'cloudformation:ChangeSetName': 'iac-demo',
+                  }),
+                }),
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:',
+                      dict({
+                        'Ref': 'AWS::Partition',
+                      }),
+                      ':cloudformation:',
+                      dict({
+                        'Ref': 'AWS::Region',
+                      }),
+                      ':',
+                      dict({
+                        'Ref': 'AWS::AccountId',
+                      }),
+                      ':stack/iac-demo/*',
+                    ]),
+                  ]),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'CICDDeploymentRolePolicy1EE76370',
+          'Roles': list([
+            'cloudformation-deployment-role',
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'CICDPipeline24C6C0EF': dict({
+        'DependsOn': list([
+          'CICDPipelineRoleDefaultPolicyCE7CA4C8',
+          'CICDPipelineRole52C923CF',
+        ]),
+        'Properties': dict({
+          'ArtifactStore': dict({
+            'EncryptionKey': dict({
+              'Id': dict({
+                'Fn::GetAtt': list([
+                  'CICDPipelineArtifactsBucketEncryptionKeyA192D562',
+                  'Arn',
+                ]),
+              }),
+              'Type': 'KMS',
+            }),
+            'Location': dict({
+              'Ref': 'CICDPipelineArtifactsBucketF0034562',
+            }),
+            'Type': 'S3',
+          }),
+          'Name': 'iac-demo-pipeline',
+          'RoleArn': dict({
+            'Fn::GetAtt': list([
+              'CICDPipelineRole52C923CF',
+              'Arn',
+            ]),
+          }),
+          'Stages': list([
+            dict({
+              'Actions': list([
+                dict({
+                  'ActionTypeId': dict({
+                    'Category': 'Source',
+                    'Owner': 'AWS',
+                    'Provider': 'CodeCommit',
+                    'Version': '1',
+                  }),
+                  'Configuration': dict({
+                    'BranchName': 'main',
+                    'PollForSourceChanges': False,
+                    'RepositoryName': 'iac-demo',
+                  }),
+                  'Name': 'source',
+                  'OutputArtifacts': list([
+                    dict({
+                      'Name': 'source-output',
+                    }),
+                  ]),
+                  'RoleArn': dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        'arn:',
+                        dict({
+                          'Ref': 'AWS::Partition',
+                        }),
+                        ':iam::',
+                        dict({
+                          'Ref': 'AWS::AccountId',
+                        }),
+                        ':role/codecommit-source-pipeline-role',
+                      ]),
+                    ]),
+                  }),
+                  'RunOrder': 1,
+                }),
+              ]),
+              'Name': 'Source',
+            }),
+            dict({
+              'Actions': list([
+                dict({
+                  'ActionTypeId': dict({
+                    'Category': 'Build',
+                    'Owner': 'AWS',
+                    'Provider': 'CodeBuild',
+                    'Version': '1',
+                  }),
+                  'Configuration': dict({
+                    'ProjectName': dict({
+                      'Ref': 'CICDBuildProject49C5338E',
+                    }),
+                  }),
+                  'InputArtifacts': list([
+                    dict({
+                      'Name': 'source-output',
+                    }),
+                  ]),
+                  'Name': 'build',
+                  'OutputArtifacts': list([
+                    dict({
+                      'Name': 'build-output',
+                    }),
+                  ]),
+                  'RoleArn': dict({
+                    'Fn::GetAtt': list([
+                      'CICDPipelineBuildbuildCodePipelineActionRole6B5B2DAA',
+                      'Arn',
+                    ]),
+                  }),
+                  'RunOrder': 1,
+                }),
+              ]),
+              'Name': 'Build',
+            }),
+            dict({
+              'Actions': list([
+                dict({
+                  'ActionTypeId': dict({
+                    'Category': 'Deploy',
+                    'Owner': 'AWS',
+                    'Provider': 'CloudFormation',
+                    'Version': '1',
+                  }),
+                  'Configuration': dict({
+                    'ActionMode': 'CHANGE_SET_REPLACE',
+                    'ChangeSetName': 'iac-demo',
+                    'RoleArn': dict({
+                      'Fn::GetAtt': list([
+                        'CICDPipelineDeployiasdemocreateRoleF1E4CF5F',
+                        'Arn',
+                      ]),
+                    }),
+                    'StackName': 'iac-demo',
+                    'TemplatePath': 'build-output::template_iac-demo.yml',
+                  }),
+                  'InputArtifacts': list([
+                    dict({
+                      'Name': 'build-output',
+                    }),
+                  ]),
+                  'Name': 'ias-demo-create',
+                  'RoleArn': dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        'arn:',
+                        dict({
+                          'Ref': 'AWS::Partition',
+                        }),
+                        ':iam::',
+                        dict({
+                          'Ref': 'AWS::AccountId',
+                        }),
+                        ':role/cloudformation-deployment-role',
+                      ]),
+                    ]),
+                  }),
+                  'RunOrder': 1,
+                }),
+                dict({
+                  'ActionTypeId': dict({
+                    'Category': 'Deploy',
+                    'Owner': 'AWS',
+                    'Provider': 'CloudFormation',
+                    'Version': '1',
+                  }),
+                  'Configuration': dict({
+                    'ActionMode': 'CHANGE_SET_EXECUTE',
+                    'ChangeSetName': 'iac-demo',
+                    'StackName': 'iac-demo',
+                  }),
+                  'Name': 'iac-demo-execute',
+                  'RoleArn': dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        'arn:',
+                        dict({
+                          'Ref': 'AWS::Partition',
+                        }),
+                        ':iam::',
+                        dict({
+                          'Ref': 'AWS::AccountId',
+                        }),
+                        ':role/cloudformation-deployment-role',
+                      ]),
+                    ]),
+                  }),
+                  'RunOrder': 1,
+                }),
+              ]),
+              'Name': 'Deploy',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::CodePipeline::Pipeline',
+      }),
+      'CICDPipelineArtifactsBucketEncryptionKeyA192D562': dict({
+        'DeletionPolicy': 'Delete',
+        'Properties': dict({
+          'KeyPolicy': dict({
+            'Statement': list([
+              dict({
+                'Action': 'kms:*',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'AWS': dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        'arn:',
+                        dict({
+                          'Ref': 'AWS::Partition',
+                        }),
+                        ':iam::',
+                        dict({
+                          'Ref': 'AWS::AccountId',
+                        }),
+                        ':root',
+                      ]),
+                    ]),
+                  }),
+                }),
+                'Resource': '*',
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+        }),
+        'Type': 'AWS::KMS::Key',
+        'UpdateReplacePolicy': 'Delete',
+      }),
+      'CICDPipelineArtifactsBucketEncryptionKeyAliasDF182C1D': dict({
+        'DeletionPolicy': 'Delete',
+        'Properties': dict({
+          'AliasName': 'alias/codepipeline-orgiacdemopipelinecicdpipeline1400f6f9',
+          'TargetKeyId': dict({
+            'Fn::GetAtt': list([
+              'CICDPipelineArtifactsBucketEncryptionKeyA192D562',
+              'Arn',
+            ]),
+          }),
+        }),
+        'Type': 'AWS::KMS::Alias',
+        'UpdateReplacePolicy': 'Delete',
+      }),
+      'CICDPipelineArtifactsBucketF0034562': dict({
+        'DeletionPolicy': 'Retain',
+        'Properties': dict({
+          'BucketEncryption': dict({
+            'ServerSideEncryptionConfiguration': list([
+              dict({
+                'ServerSideEncryptionByDefault': dict({
+                  'KMSMasterKeyID': dict({
+                    'Fn::GetAtt': list([
+                      'CICDPipelineArtifactsBucketEncryptionKeyA192D562',
+                      'Arn',
+                    ]),
+                  }),
+                  'SSEAlgorithm': 'aws:kms',
+                }),
+              }),
+            ]),
+          }),
+          'PublicAccessBlockConfiguration': dict({
+            'BlockPublicAcls': True,
+            'BlockPublicPolicy': True,
+            'IgnorePublicAcls': True,
+            'RestrictPublicBuckets': True,
+          }),
+        }),
+        'Type': 'AWS::S3::Bucket',
+        'UpdateReplacePolicy': 'Retain',
+      }),
+      'CICDPipelineArtifactsBucketPolicyF16439A4': dict({
+        'Properties': dict({
+          'Bucket': dict({
+            'Ref': 'CICDPipelineArtifactsBucketF0034562',
+          }),
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 's3:*',
+                'Condition': dict({
+                  'Bool': dict({
+                    'aws:SecureTransport': 'false',
+                  }),
+                }),
+                'Effect': 'Deny',
+                'Principal': dict({
+                  'AWS': '*',
+                }),
+                'Resource': list([
+                  dict({
+                    'Fn::GetAtt': list([
+                      'CICDPipelineArtifactsBucketF0034562',
+                      'Arn',
+                    ]),
+                  }),
+                  dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        dict({
+                          'Fn::GetAtt': list([
+                            'CICDPipelineArtifactsBucketF0034562',
+                            'Arn',
+                          ]),
+                        }),
+                        '/*',
+                      ]),
+                    ]),
+                  }),
+                ]),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+        }),
+        'Type': 'AWS::S3::BucketPolicy',
+      }),
+      'CICDPipelineBuildbuildCodePipelineActionRole6B5B2DAA': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'AWS': dict({
+                    'Fn::GetAtt': list([
+                      'CICDPipelineRole52C923CF',
+                      'Arn',
+                    ]),
+                  }),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'CICDPipelineBuildbuildCodePipelineActionRoleDefaultPolicy4520E113': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': list([
+                  'codebuild:BatchGetBuilds',
+                  'codebuild:StartBuild',
+                  'codebuild:StopBuild',
+                ]),
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::GetAtt': list([
+                    'CICDBuildProject49C5338E',
+                    'Arn',
+                  ]),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'CICDPipelineBuildbuildCodePipelineActionRoleDefaultPolicy4520E113',
+          'Roles': list([
+            dict({
+              'Ref': 'CICDPipelineBuildbuildCodePipelineActionRole6B5B2DAA',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'CICDPipelineDeployiasdemocreateRoleDefaultPolicy532E3D1B': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': list([
+                  's3:GetObject*',
+                  's3:GetBucket*',
+                  's3:List*',
+                ]),
+                'Effect': 'Allow',
+                'Resource': list([
+                  dict({
+                    'Fn::GetAtt': list([
+                      'CICDPipelineArtifactsBucketF0034562',
+                      'Arn',
+                    ]),
+                  }),
+                  dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        dict({
+                          'Fn::GetAtt': list([
+                            'CICDPipelineArtifactsBucketF0034562',
+                            'Arn',
+                          ]),
+                        }),
+                        '/*',
+                      ]),
+                    ]),
+                  }),
+                ]),
+              }),
+              dict({
+                'Action': list([
+                  'kms:Decrypt',
+                  'kms:DescribeKey',
+                ]),
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::GetAtt': list([
+                    'CICDPipelineArtifactsBucketEncryptionKeyA192D562',
+                    'Arn',
+                  ]),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'CICDPipelineDeployiasdemocreateRoleDefaultPolicy532E3D1B',
+          'Roles': list([
+            dict({
+              'Ref': 'CICDPipelineDeployiasdemocreateRoleF1E4CF5F',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'CICDPipelineDeployiasdemocreateRoleF1E4CF5F': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'cloudformation.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'CICDPipelineEventsRoleDefaultPolicy5B4F6BFB': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'codepipeline:StartPipelineExecution',
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:',
+                      dict({
+                        'Ref': 'AWS::Partition',
+                      }),
+                      ':codepipeline:',
+                      dict({
+                        'Ref': 'AWS::Region',
+                      }),
+                      ':',
+                      dict({
+                        'Ref': 'AWS::AccountId',
+                      }),
+                      ':',
+                      dict({
+                        'Ref': 'CICDPipeline24C6C0EF',
+                      }),
+                    ]),
+                  ]),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'CICDPipelineEventsRoleDefaultPolicy5B4F6BFB',
+          'Roles': list([
+            dict({
+              'Ref': 'CICDPipelineEventsRoleE2ED7142',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'CICDPipelineEventsRoleE2ED7142': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'events.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'CICDPipelineRole52C923CF': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'codepipeline.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'CICDPipelineRoleDefaultPolicyCE7CA4C8': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': list([
+                  's3:GetObject*',
+                  's3:GetBucket*',
+                  's3:List*',
+                  's3:DeleteObject*',
+                  's3:PutObject',
+                  's3:PutObjectLegalHold',
+                  's3:PutObjectRetention',
+                  's3:PutObjectTagging',
+                  's3:PutObjectVersionTagging',
+                  's3:Abort*',
+                ]),
+                'Effect': 'Allow',
+                'Resource': list([
+                  dict({
+                    'Fn::GetAtt': list([
+                      'CICDPipelineArtifactsBucketF0034562',
+                      'Arn',
+                    ]),
+                  }),
+                  dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        dict({
+                          'Fn::GetAtt': list([
+                            'CICDPipelineArtifactsBucketF0034562',
+                            'Arn',
+                          ]),
+                        }),
+                        '/*',
+                      ]),
+                    ]),
+                  }),
+                ]),
+              }),
+              dict({
+                'Action': list([
+                  'kms:Decrypt',
+                  'kms:DescribeKey',
+                  'kms:Encrypt',
+                  'kms:ReEncrypt*',
+                  'kms:GenerateDataKey*',
+                ]),
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::GetAtt': list([
+                    'CICDPipelineArtifactsBucketEncryptionKeyA192D562',
+                    'Arn',
+                  ]),
+                }),
+              }),
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:',
+                      dict({
+                        'Ref': 'AWS::Partition',
+                      }),
+                      ':iam::',
+                      dict({
+                        'Ref': 'AWS::AccountId',
+                      }),
+                      ':role/codecommit-source-pipeline-role',
+                    ]),
+                  ]),
+                }),
+              }),
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::GetAtt': list([
+                    'CICDPipelineBuildbuildCodePipelineActionRole6B5B2DAA',
+                    'Arn',
+                  ]),
+                }),
+              }),
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:',
+                      dict({
+                        'Ref': 'AWS::Partition',
+                      }),
+                      ':iam::',
+                      dict({
+                        'Ref': 'AWS::AccountId',
+                      }),
+                      ':role/cloudformation-deployment-role',
+                    ]),
+                  ]),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'CICDPipelineRoleDefaultPolicyCE7CA4C8',
+          'Roles': list([
+            dict({
+              'Ref': 'CICDPipelineRole52C923CF',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'CICDRepositoryorgiacdemopipelineCICDPipeline1400F6F9mainEventRule00C2AEEE': dict({
+        'Properties': dict({
+          'EventPattern': dict({
+            'detail': dict({
+              'event': list([
+                'referenceCreated',
+                'referenceUpdated',
+              ]),
+              'referenceName': list([
+                'main',
+              ]),
+            }),
+            'detail-type': list([
+              'CodeCommit Repository State Change',
+            ]),
+            'resources': list([
+              dict({
+                'Fn::Join': list([
+                  '',
+                  list([
+                    'arn:',
+                    dict({
+                      'Ref': 'AWS::Partition',
+                    }),
+                    ':codecommit:',
+                    dict({
+                      'Ref': 'AWS::Region',
+                    }),
+                    ':',
+                    dict({
+                      'Ref': 'AWS::AccountId',
+                    }),
+                    ':iac-demo',
+                  ]),
+                ]),
+              }),
+            ]),
+            'source': list([
+              'aws.codecommit',
+            ]),
+          }),
+          'State': 'ENABLED',
+          'Targets': list([
+            dict({
+              'Arn': dict({
+                'Fn::Join': list([
+                  '',
+                  list([
+                    'arn:',
+                    dict({
+                      'Ref': 'AWS::Partition',
+                    }),
+                    ':codepipeline:',
+                    dict({
+                      'Ref': 'AWS::Region',
+                    }),
+                    ':',
+                    dict({
+                      'Ref': 'AWS::AccountId',
+                    }),
+                    ':',
+                    dict({
+                      'Ref': 'CICDPipeline24C6C0EF',
+                    }),
+                  ]),
+                ]),
+              }),
+              'Id': 'Target0',
+              'RoleArn': dict({
+                'Fn::GetAtt': list([
+                  'CICDPipelineEventsRoleE2ED7142',
+                  'Arn',
+                ]),
+              }),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::Events::Rule',
+      }),
+      'CICDSourceRolePolicyA533A8AA': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': list([
+                  's3:GetObject*',
+                  's3:GetBucket*',
+                  's3:List*',
+                  's3:DeleteObject*',
+                  's3:PutObject',
+                  's3:PutObjectLegalHold',
+                  's3:PutObjectRetention',
+                  's3:PutObjectTagging',
+                  's3:PutObjectVersionTagging',
+                  's3:Abort*',
+                ]),
+                'Effect': 'Allow',
+                'Resource': list([
+                  dict({
+                    'Fn::GetAtt': list([
+                      'CICDPipelineArtifactsBucketF0034562',
+                      'Arn',
+                    ]),
+                  }),
+                  dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        dict({
+                          'Fn::GetAtt': list([
+                            'CICDPipelineArtifactsBucketF0034562',
+                            'Arn',
+                          ]),
+                        }),
+                        '/*',
+                      ]),
+                    ]),
+                  }),
+                ]),
+              }),
+              dict({
+                'Action': list([
+                  'kms:Decrypt',
+                  'kms:DescribeKey',
+                  'kms:Encrypt',
+                  'kms:ReEncrypt*',
+                  'kms:GenerateDataKey*',
+                ]),
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::GetAtt': list([
+                    'CICDPipelineArtifactsBucketEncryptionKeyA192D562',
+                    'Arn',
+                  ]),
+                }),
+              }),
+              dict({
+                'Action': list([
+                  'codecommit:GetBranch',
+                  'codecommit:GetCommit',
+                  'codecommit:UploadArchive',
+                  'codecommit:GetUploadArchiveStatus',
+                  'codecommit:CancelUploadArchive',
+                ]),
+                'Effect': 'Allow',
+                'Resource': dict({
+                  'Fn::Join': list([
+                    '',
+                    list([
+                      'arn:',
+                      dict({
+                        'Ref': 'AWS::Partition',
+                      }),
+                      ':codecommit:',
+                      dict({
+                        'Ref': 'AWS::Region',
+                      }),
+                      ':',
+                      dict({
+                        'Ref': 'AWS::AccountId',
+                      }),
+                      ':iac-demo',
+                    ]),
+                  ]),
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'CICDSourceRolePolicyA533A8AA',
+          'Roles': list([
+            'codecommit-source-pipeline-role',
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+    }),
     'Rules': dict({
       'CheckBootstrapVersion': dict({
         'Assertions': list([
