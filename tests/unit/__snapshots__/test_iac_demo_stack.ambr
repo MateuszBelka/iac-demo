@@ -6,6 +6,10 @@
         'Default': '/org_name/ebs/encryption-key-arn',
         'Type': 'AWS::SSM::Parameter::Value<String>',
       }),
+      'AutoScalingGroupSubnetIdParameter6152FD96': dict({
+        'Default': '/org/vpc/private-subnet-1-id',
+        'Type': 'AWS::SSM::Parameter::Value<String>',
+      }),
       'BootstrapVersion': dict({
         'Default': '/cdk-bootstrap/hnb659fds/version',
         'Description': 'Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]',
@@ -20,6 +24,11 @@
       'AutoScalingGroup34A4A1D7': dict({
         'Properties': dict({
           'AutoScalingGroupName': 'iac-demo-asg',
+          'AvailabilityZones': dict({
+            'Fn::GetAZs': dict({
+              'Ref': 'AWS::Region',
+            }),
+          }),
           'DesiredCapacity': '1',
           'LaunchTemplate': dict({
             'LaunchTemplateId': dict({
@@ -34,6 +43,11 @@
           }),
           'MaxSize': '1',
           'MinSize': '1',
+          'VPCZoneIdentifier': list([
+            dict({
+              'Ref': 'AutoScalingGroupSubnetIdParameter6152FD96',
+            }),
+          ]),
         }),
         'Type': 'AWS::AutoScaling::AutoScalingGroup',
       }),
@@ -65,6 +79,12 @@
               'Ref': 'SsmParameterValueorgnamehardenendamiidC96584B6F00A464EAD1953AFF4B05118Parameter',
             }),
             'InstanceType': 't3a.medium',
+            'NetworkInterfaces': list([
+              dict({
+                'AssociatePublicIpAddress': False,
+                'DeviceIndex': 0,
+              }),
+            ]),
             'TagSpecifications': list([
               dict({
                 'ResourceType': 'instance',
@@ -226,7 +246,7 @@
             'S3Bucket': dict({
               'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
             }),
-            'S3Key': 'c23d9e25f372244944872c45825d2c17aa89818124780c6bc15b238fd5e4f233.zip',
+            'S3Key': '36757bd5cbbd60f5d9bc2696cba1c3383efa03f2b454078423d247f8c1211eeb.zip',
           }),
           'Handler': 'service.index.lambda_handler',
           'LoggingConfig': dict({

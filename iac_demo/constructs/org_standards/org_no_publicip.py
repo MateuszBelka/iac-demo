@@ -108,7 +108,7 @@ class NoPublicIP(Construct):
                 "AutomationAssumeRole": {
                     "StaticValue": remediation_ssm_role.role_arn,
                 },
-                "ResourceId": {"ResourceValue": {"Value": "RESOURCE_ID"}}
+                "ResourceId": {"ResourceValue": {"Value": "RESOURCE_ID"}},
             },
             automatic=True,
             maximum_automatic_attempts=2,

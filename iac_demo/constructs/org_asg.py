@@ -20,9 +20,13 @@ class ASG(Construct):
         self.auto_scaling_group = self._create_auto_scaling_group(launch_template)
 
     def _create_auto_scaling_group(self, launch_template: ec2.LaunchTemplate):
+        vpc_subnet_id_1 = ssm.StringParameter.from_string_parameter_name(
+            self, "SubnetId", string_parameter_name="/org/vpc/private-subnet-1-id"
+        ).string_value
+
         return autoscaling.CfnAutoScalingGroup(
             self,
-            id="AutoScalingGroup",
+            "AutoScalingGroup",
             auto_scaling_group_name="iac-demo-asg",
             desired_capacity="1",
             max_size="1",
@@ -31,6 +35,8 @@ class ASG(Construct):
                 version=launch_template.version_number,
                 launch_template_id=launch_template.launch_template_id,
             ),
+            availability_zones=cdk.Fn.get_azs(region=cdk.Aws.REGION),
+            vpc_zone_identifier=[vpc_subnet_id_1],
         )
 
     def _create_ec2_launch_template(self):
@@ -64,4 +70,5 @@ class ASG(Construct):
             role=iam.Role.from_role_name(
                 self, "EC2Role", role_name="iac-demo-ec2-role"
             ),
+            associate_public_ip_address=False,
         )
